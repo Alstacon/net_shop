@@ -3,7 +3,7 @@ from envparse import env
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-ENV_FILE_PATH = BASE_DIR.joinpath('..env')
+ENV_FILE_PATH = BASE_DIR.joinpath('.env')
 if ENV_FILE_PATH.is_file():
     env.read_envfile(path=ENV_FILE_PATH)
 
@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'seller',
 ]
 
 MIDDLEWARE = [
@@ -94,4 +95,3 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
