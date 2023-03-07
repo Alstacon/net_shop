@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "net-shop"
+version = "0.1.0"
+description = ""
+authors = ["alstacon <alstacon@gmail.com>"]
+readme = "README.md"
+packages = [{include = "net_shop"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "^4.1.7"
+djangorestframework = "^3.14.0"
+psycopg2-binary = "^2.9.5"
+envparse = "^0.2.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
