@@ -1,5 +1,6 @@
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from seller.models import Seller, Product
 
@@ -14,6 +15,7 @@ class SellerSerializer(serializers.ModelSerializer):
     type = serializers.ChoiceField(required=True, choices=Seller.SellerType.choices)
     provider = 'SellerSerializer(read_only=True, required=False)'
     products = ProductSerializer(many=True)
+    buyers = 'SellerSerializer(read_only=True, required=False, many=True)'
 
     class Meta:
         model = Seller
@@ -34,9 +36,15 @@ class SellerCreateSerializer(serializers.ModelSerializer):
         self._products = self.initial_data.pop('products')
         return super().is_valid(raise_exception=raise_exception)
 
-    def create(self, validated_data):
+    def create(self, validated_data: dict) -> Seller:
         validated_data.pop('user')
         seller = Seller.objects.create(**validated_data)
+
+        if seller.type == Seller.SellerType.factory:
+            seller.level = 0
+        else:
+            if seller.provider:
+                seller.level = seller.provider.level + 1
 
         for product in self._products:
             product['seller'] = Seller.objects.get(id=product['seller'])
@@ -57,7 +65,7 @@ class SellerUpdateSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'created', 'debt')
 
     def update(self, instance: Seller, validated_data: dict) -> Seller:
-        """Удаляет из списка все продукты и записывает заново."""
+        """Удаляет из списка все продукты и записывает заново с изменения."""
         with transaction.atomic():
             Product.objects.filter(seller=instance).delete()
             Product.objects.bulk_create([
@@ -71,5 +79,16 @@ class SellerUpdateSerializer(serializers.ModelSerializer):
             ])
 
             super().update(instance, validated_data)
+
+            if instance.type == Seller.SellerType.factory:
+                instance.level = 0
+                Seller.objects.filter(provider=instance).update(level=1)
+            else:
+                if instance.provider:
+                    if instance.provider == instance:
+                        raise ValidationError('Выберите другого поставщика.')
+                    instance.level = instance.provider.level + 1
+                    instance.save()
+                    Seller.objects.filter(provider=instance).update(level=instance.level + 1)
 
         return instance

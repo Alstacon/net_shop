@@ -8,7 +8,8 @@ class Seller(models.Model):
         entrepreneur = 3, 'Индивидуальный предприниматель'
 
     type = models.PositiveSmallIntegerField(choices=SellerType.choices, default=SellerType.factory,
-                                            verbose_name='Уровень продавца')
+                                            verbose_name='Тип продавца')
+    level = models.PositiveSmallIntegerField(default=0, verbose_name='Уровень в иерархии')
     title = models.CharField(max_length=255, verbose_name='Название')
     provider = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Поставщик',
                                  related_name='seller')
