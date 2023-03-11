@@ -14,8 +14,9 @@ class ProductInline(admin.TabularInline):
 
 @admin.register(Seller)
 class RetailerAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'level', 'type', 'provider_link', 'debt')
     fieldsets = [
-        (None, {'fields': ('title', 'provider', 'debt', 'created')}),
+        (None, {'fields': ('id', 'title', 'level', 'type', 'provider', 'debt', 'created')}),
         ('Contacts', {'fields': ('email',
                                  'country',
                                  'city',
@@ -32,12 +33,23 @@ class RetailerAdmin(admin.ModelAdmin):
 
     provider_link.admin_order_field = 'provider'
     provider_link.short_description = 'Поставщик'
-    list_display = ('title', 'provider_link', 'debt')
     list_display_links = ('title',)
     inlines = [ProductInline]
     list_filter = ('city',)
-    readonly_fields = ('created',)
+    readonly_fields = ('created', 'id', 'level')
     actions = ['clear_debt']
+
+    def save_model(self, request, obj, form, change):
+        if obj.type == Seller.SellerType.factory:
+            obj.level = 0
+            obj.provider = None
+            Seller.objects.filter(provider=obj).update(level=1)
+        if obj.provider:
+            if obj.provider == obj:
+                raise ValueError('Выберите другого поставщика.')
+            obj.level = obj.provider.level + 1
+            Seller.objects.filter(provider=obj).update(level=obj.level + 1)
+        super().save_model(request, obj, form, change)
 
     @admin.action(description='Очистить задолженность перед поставщиком')
     def clear_debt(self, request, queryset):

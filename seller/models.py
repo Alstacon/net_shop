@@ -8,7 +8,8 @@ class Seller(models.Model):
         entrepreneur = 3, 'Индивидуальный предприниматель'
 
     type = models.PositiveSmallIntegerField(choices=SellerType.choices, default=SellerType.factory,
-                                            verbose_name='Уровень продавца')
+                                            verbose_name='Тип продавца')
+    level = models.PositiveSmallIntegerField(default=0, verbose_name='Уровень в иерархии')
     title = models.CharField(max_length=255, verbose_name='Название')
     provider = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Поставщик',
                                  related_name='seller')
@@ -19,6 +20,10 @@ class Seller(models.Model):
     building = models.CharField(max_length=10, verbose_name='Номер дома')
     debt = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Задолженность перед поставщиком')
     created = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
+
+    class Meta:
+        verbose_name = 'Продавец'
+        verbose_name_plural = 'Продавцы'
 
     def __str__(self):
         return f'{self.title}'
