@@ -42,6 +42,7 @@ class RetailerAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if obj.type == Seller.SellerType.factory:
             obj.level = 0
+            obj.provider = None
             Seller.objects.filter(provider=obj).update(level=1)
         if obj.provider:
             if obj.provider == obj:

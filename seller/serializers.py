@@ -82,6 +82,7 @@ class SellerUpdateSerializer(serializers.ModelSerializer):
 
             if instance.type == Seller.SellerType.factory:
                 instance.level = 0
+                instance.provider = None
                 Seller.objects.filter(provider=instance).update(level=1)
             else:
                 if instance.provider:
