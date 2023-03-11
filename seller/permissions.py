@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
 
-class IsActiveUser(permissions.IsAuthenticated):
-    def has_permission(self, request, view):
+class IsActive(permissions.IsAuthenticated):
+    def has_object_permission(self, request, view, obj):
         return request.user.is_active is True
