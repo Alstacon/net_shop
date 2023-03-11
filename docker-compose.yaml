@@ -20,10 +20,27 @@ services:
       timeout: 3s
       retries: 5
 
+  api:
+    container_name: backend
+    build: .
+    restart: always
+    environment:
+      DB_HOST: db
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - '80:80'
+    command: python manage.py runserver 0.0.0.0:80
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./seller/:/opt/seller
+
+
+
+
 volumes:
   shop_pg_data:
     driver: local
-
-
-
-

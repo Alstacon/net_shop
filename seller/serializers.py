@@ -54,7 +54,7 @@ class SellerUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Seller
         fields = '__all__'
-        read_only_fields = ('id', 'created')
+        read_only_fields = ('id', 'created', 'debt')
 
     def update(self, instance: Seller, validated_data: dict) -> Seller:
         """Удаляет из списка все продукты и записывает заново."""

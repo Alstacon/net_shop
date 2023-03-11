@@ -7,13 +7,14 @@ from seller.serializers import SellerSerializer, SellerCreateSerializer, SellerU
 
 class SellerViewSet(viewsets.ModelViewSet):
     default_queryset = Seller.objects.all()
+    # queryset = Seller.objects.all()
     default_serializer_class = SellerSerializer
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend, ]
     filterset_fields = ['country']
     permission_classes = [IsActive]
 
     querysets = {
-        'retrieve': Seller.objects.prefetch_related('products')
+        'list': Seller.objects.prefetch_related('products').all(),
     }
 
     serializers = {

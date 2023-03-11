@@ -14,8 +14,9 @@ class ProductInline(admin.TabularInline):
 
 @admin.register(Seller)
 class RetailerAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'provider_link', 'debt')
     fieldsets = [
-        (None, {'fields': ('title', 'provider', 'debt', 'created')}),
+        (None, {'fields': ('id', 'title', 'provider', 'debt', 'created')}),
         ('Contacts', {'fields': ('email',
                                  'country',
                                  'city',
@@ -32,11 +33,10 @@ class RetailerAdmin(admin.ModelAdmin):
 
     provider_link.admin_order_field = 'provider'
     provider_link.short_description = 'Поставщик'
-    list_display = ('title', 'provider_link', 'debt')
     list_display_links = ('title',)
     inlines = [ProductInline]
     list_filter = ('city',)
-    readonly_fields = ('created',)
+    readonly_fields = ('created', 'id')
     actions = ['clear_debt']
 
     @admin.action(description='Очистить задолженность перед поставщиком')
