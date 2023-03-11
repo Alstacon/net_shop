@@ -15,7 +15,6 @@ class SellerSerializer(serializers.ModelSerializer):
     type = serializers.ChoiceField(required=True, choices=Seller.SellerType.choices)
     provider = 'SellerSerializer(read_only=True, required=False)'
     products = ProductSerializer(many=True)
-    buyers = 'SellerSerializer(read_only=True, required=False, many=True)'
 
     class Meta:
         model = Seller

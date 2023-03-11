@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 import django_filters.rest_framework
 from seller.models import Seller
-from seller.permissions import IsActive
+from seller.permissions import IsActiveUser
 from seller.serializers import SellerSerializer, SellerCreateSerializer, SellerUpdateSerializer
 
 
@@ -10,7 +10,8 @@ class SellerViewSet(viewsets.ModelViewSet):
     default_serializer_class = SellerSerializer
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend, ]
     filterset_fields = ['country']
-    permission_classes = [IsActive]
+
+    permission_classes = [IsActiveUser]
 
     querysets = {
         'list': Seller.objects.prefetch_related('products').all(),
