@@ -20,6 +20,10 @@ class Seller(models.Model):
     debt = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Задолженность перед поставщиком')
     created = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
 
+    class Meta:
+        verbose_name = 'Продавец'
+        verbose_name_plural = 'Продавцы'
+
     def __str__(self):
         return f'{self.title}'
 
