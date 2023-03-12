@@ -10,4 +10,6 @@ RUN pip install poetry \
 
 COPY . .
 
+ENTRYPOINT ["bash", "entrypoint.sh"]
+
 CMD python manage.py runserver 0.0.0.0:80

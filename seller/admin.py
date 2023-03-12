@@ -5,11 +5,14 @@ from django.utils.html import format_html
 from django.utils.translation import ngettext
 
 from seller.models import Seller, Product
+from seller.tools import update_level_obj
 
 
 class ProductInline(admin.TabularInline):
-    model = Product
-    extra = 3
+    verbose_name = 'Продукт'
+    verbose_name_plural = 'Продукты'
+
+    model = Product.seller.through
 
 
 @admin.register(Seller)
@@ -17,7 +20,7 @@ class RetailerAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'level', 'type', 'provider_link', 'debt')
     fieldsets = [
         (None, {'fields': ('id', 'title', 'level', 'type', 'provider', 'debt', 'created')}),
-        ('Contacts', {'fields': ('email',
+        ('Контакты', {'fields': ('email',
                                  'country',
                                  'city',
                                  'street',
@@ -34,10 +37,13 @@ class RetailerAdmin(admin.ModelAdmin):
     provider_link.admin_order_field = 'provider'
     provider_link.short_description = 'Поставщик'
     list_display_links = ('title',)
-    inlines = [ProductInline]
     list_filter = ('city',)
-    readonly_fields = ('created', 'id', 'level')
+    readonly_fields = ('created', 'id', 'level', 'products')
     actions = ['clear_debt']
+    inlines = [
+        ProductInline,
+    ]
+    exclude = ('products',)
 
     def save_model(self, request, obj, form, change):
         if obj.type == Seller.SellerType.factory:
@@ -48,7 +54,8 @@ class RetailerAdmin(admin.ModelAdmin):
             if obj.provider == obj:
                 raise ValueError('Выберите другого поставщика.')
             obj.level = obj.provider.level + 1
-            Seller.objects.filter(provider=obj).update(level=obj.level + 1)
+            update_level_obj(obj)
+
         super().save_model(request, obj, form, change)
 
     @admin.action(description='Очистить задолженность перед поставщиком')
@@ -63,12 +70,12 @@ class RetailerAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('seller',
-                    'title',
-                    'model',
-                    'released',
-                    )
-    readonly_fields = ('seller',)
+    verbose_name = 'Продукт'
+    verbose_name_plural = 'Продукты'
+
+    list_display = ('id', 'title', 'model', 'released')
+    readonly_fields = ('id',)
+    list_display_links = ('title',)
 
 
 admin.site.unregister(Group)
