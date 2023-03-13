@@ -3,6 +3,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from seller.models import Seller, Product
+from seller.tools import update_level_obj
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -15,7 +16,6 @@ class SellerSerializer(serializers.ModelSerializer):
     type = serializers.ChoiceField(required=True, choices=Seller.SellerType.choices)
     provider = 'SellerSerializer(read_only=True, required=False)'
     products = ProductSerializer(many=True)
-    buyers = 'SellerSerializer(read_only=True, required=False, many=True)'
 
     class Meta:
         model = Seller
@@ -32,12 +32,9 @@ class SellerCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('id', 'created')
 
-    def is_valid(self, *, raise_exception=False):
-        self._products = self.initial_data.pop('products')
-        return super().is_valid(raise_exception=raise_exception)
-
     def create(self, validated_data: dict) -> Seller:
         validated_data.pop('user')
+        products = validated_data.pop('products', [])
         seller = Seller.objects.create(**validated_data)
 
         if seller.type == Seller.SellerType.factory:
@@ -46,10 +43,13 @@ class SellerCreateSerializer(serializers.ModelSerializer):
             if seller.provider:
                 seller.level = seller.provider.level + 1
 
-        for product in self._products:
-            product['seller'] = Seller.objects.get(id=product['seller'])
-            product = Product.objects.create(**product)
-            seller.products.add(product)
+        for item in products:
+            product, _ = Product.objects.get_or_create(
+                title=item['title'],
+                model=item['model'],
+                released=item['released'],
+            )
+            seller.products.add()
 
         seller.save()
         return seller
@@ -65,31 +65,31 @@ class SellerUpdateSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'created', 'debt')
 
     def update(self, instance: Seller, validated_data: dict) -> Seller:
-        """Удаляет из списка все продукты и записывает заново с изменения."""
         with transaction.atomic():
-            Product.objects.filter(seller=instance).delete()
-            Product.objects.bulk_create([
-                Product(
-                    title=product['title'],
-                    model=product['model'],
-                    released=product['released'],
-                    seller=instance,
-                )
-                for product in validated_data.pop('products', [])
-            ])
+            if 'products' in validated_data:
+                instance.products.clear()
+                if products := validated_data.pop('products'):
+                    for item in products:
+                        product, _ = Product.objects.get_or_create(
+                            title=item['title'],
+                            model=item['model'],
+                            released=item['released'],
+                        )
+                        instance.products.add(product)
 
             super().update(instance, validated_data)
 
             if instance.type == Seller.SellerType.factory:
                 instance.level = 0
                 instance.provider = None
-                Seller.objects.filter(provider=instance).update(level=1)
+                instance.save()
+                update_level_obj(instance)
             else:
                 if instance.provider:
                     if instance.provider == instance:
                         raise ValidationError('Выберите другого поставщика.')
                     instance.level = instance.provider.level + 1
                     instance.save()
-                    Seller.objects.filter(provider=instance).update(level=instance.level + 1)
+                    update_level_obj(instance)
 
         return instance
