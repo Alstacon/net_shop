@@ -49,11 +49,13 @@ class RetailerAdmin(admin.ModelAdmin):
         if obj.type == Seller.SellerType.factory:
             obj.level = 0
             obj.provider = None
-            Seller.objects.filter(provider=obj).update(level=1)
+            obj.save()
+            update_level_obj(obj)
         if obj.provider:
             if obj.provider == obj:
                 raise ValueError('Выберите другого поставщика.')
             obj.level = obj.provider.level + 1
+            obj.save()
             update_level_obj(obj)
 
         super().save_model(request, obj, form, change)

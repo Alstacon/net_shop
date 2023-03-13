@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from seller.models import Seller, Product
-from seller.tools import update_level_instance
+from seller.tools import update_level_obj
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -82,13 +82,14 @@ class SellerUpdateSerializer(serializers.ModelSerializer):
             if instance.type == Seller.SellerType.factory:
                 instance.level = 0
                 instance.provider = None
-                update_level_instance(instance)
+                instance.save()
+                update_level_obj(instance)
             else:
                 if instance.provider:
                     if instance.provider == instance:
                         raise ValidationError('Выберите другого поставщика.')
                     instance.level = instance.provider.level + 1
                     instance.save()
-                    update_level_instance(instance)
+                    update_level_obj(instance)
 
         return instance

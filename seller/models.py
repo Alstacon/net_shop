@@ -11,8 +11,8 @@ class Seller(models.Model):
                                             verbose_name='Тип продавца')
     level = models.PositiveSmallIntegerField(default=0, verbose_name='Уровень в иерархии')
     title = models.CharField(max_length=255, verbose_name='Название')
-    provider = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Поставщик',
-                                 related_name='seller')
+    provider = models.OneToOneField('self', on_delete=models.PROTECT, null=True, blank=True, verbose_name='Поставщик',
+                                    related_name='seller')
     email = models.EmailField(max_length=100, verbose_name='Email')
     country = models.CharField(max_length=50, verbose_name='Страна')
     city = models.CharField(max_length=50, verbose_name='Город')
