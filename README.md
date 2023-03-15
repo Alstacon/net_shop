@@ -1,6 +1,7 @@
 # Онлайн платформа торговой сети электроники
 Веб-приложение с API интерфейсом, админ-панелью и базой данных.
 ___
+[![codecov](https://codecov.io/gh/Alstacon/net_shop/branch/main/graph/badge.svg?token=NNN81TZEEN)](https://codecov.io/gh/Alstacon/net_shop)
 
 
 ### Стек 📚
