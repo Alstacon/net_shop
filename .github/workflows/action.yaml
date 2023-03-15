@@ -28,6 +28,13 @@ jobs:
           pip install poetry
           poetry install --with tests
       - name: run tests
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DB_HOST: '127.0.0.1'
+          DB_ENGINE: 'django.db.backends.postgresql'
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_NAME: postgres
         run: python -m poetry run pytest --cov=./ --cov-report=xml
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
