@@ -1,0 +1,40 @@
+name: tests
+
+on: [push]
+
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14.6-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install dependencies
+        run: |
+          pip install poetry
+          poetry install --with tests
+      - name: run tests
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DB_HOST: '127.0.0.1'
+          DB_ENGINE: 'django.db.backends.postgresql'
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_NAME: postgres
+        run: python -m poetry run pytest --cov=./ --cov-report=xml
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3

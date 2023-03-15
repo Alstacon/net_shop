@@ -10,6 +10,7 @@ class SellerViewSet(viewsets.ModelViewSet):
     default_serializer_class = SellerSerializer
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend, ]
     filterset_fields = ['country']
+
     permission_classes = [IsActive]
 
     querysets = {

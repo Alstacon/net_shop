@@ -13,11 +13,11 @@ class Seller(models.Model):
     title = models.CharField(max_length=255, verbose_name='Название')
     provider = models.OneToOneField('self', on_delete=models.PROTECT, null=True, blank=True, verbose_name='Поставщик',
                                     related_name='seller')
-    email = models.EmailField(max_length=100, verbose_name='Email')
-    country = models.CharField(max_length=50, verbose_name='Страна')
-    city = models.CharField(max_length=50, verbose_name='Город')
-    street = models.CharField(max_length=50, verbose_name='Улица')
-    building = models.CharField(max_length=10, verbose_name='Номер дома')
+    email = models.EmailField(max_length=100, null=True, blank=True, verbose_name='Email')
+    country = models.CharField(max_length=100, null=True, blank=True, verbose_name='Страна')
+    city = models.CharField(max_length=100, null=True, blank=True, verbose_name='Город')
+    street = models.CharField(max_length=100, null=True, blank=True, verbose_name='Улица')
+    building = models.CharField(max_length=10, null=True, blank=True, verbose_name='Номер дома')
     products = models.ManyToManyField('Product', verbose_name='Продукты', related_name='seller')
     debt = models.DecimalField(max_digits=10, decimal_places=2, default='0.00',
                                verbose_name='Задолженность перед поставщиком')
