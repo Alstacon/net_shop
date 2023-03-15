@@ -14,9 +14,9 @@ class Seller(models.Model):
     provider = models.OneToOneField('self', on_delete=models.PROTECT, null=True, blank=True, verbose_name='Поставщик',
                                     related_name='seller')
     email = models.EmailField(max_length=100, null=True, blank=True, verbose_name='Email')
-    country = models.CharField(max_length=50, null=True, blank=True, verbose_name='Страна')
-    city = models.CharField(max_length=50, null=True, blank=True, verbose_name='Город')
-    street = models.CharField(max_length=50, null=True, blank=True, verbose_name='Улица')
+    country = models.CharField(max_length=100, null=True, blank=True, verbose_name='Страна')
+    city = models.CharField(max_length=100, null=True, blank=True, verbose_name='Город')
+    street = models.CharField(max_length=100, null=True, blank=True, verbose_name='Улица')
     building = models.CharField(max_length=10, null=True, blank=True, verbose_name='Номер дома')
     products = models.ManyToManyField('Product', verbose_name='Продукты', related_name='seller')
     debt = models.DecimalField(max_digits=10, decimal_places=2, default='0.00',

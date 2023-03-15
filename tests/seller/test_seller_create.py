@@ -66,14 +66,14 @@ class TestSellerCreate(BaseTestCase):
 
     def test_create_non_factory_with_provider(self, auth_client):
         auth_client.post(self.url, data={
-                'type': 1,
-                'title': 'Завод',
-                'email': 'pp@mail.ru',
-                'country': '-',
-                'city': '-',
-                'street': '-',
-                'building': '-',
-            })
+            'type': 1,
+            'title': 'Завод',
+            'email': 'pp@mail.ru',
+            'country': '-',
+            'city': '-',
+            'street': '-',
+            'building': '-',
+        })
 
         factory = Seller.objects.last()
         assert factory.level == 0
@@ -94,3 +94,8 @@ class TestSellerCreate(BaseTestCase):
         buyer = Seller.objects.last()
 
         assert buyer.level == 1
+
+    def test_create_non_active(self, auth_client, non_active_user, faker, ):
+        response = auth_client.post(self.url, data=faker.pydict(1), user=non_active_user)
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
